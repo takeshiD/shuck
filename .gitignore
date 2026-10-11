@@ -47,3 +47,7 @@ fuzz/corpus/
 fuzz/artifacts/
 fuzz/target/
 /shuck.cdx.xml
+
+# Nix build output
+/result
+/result-*

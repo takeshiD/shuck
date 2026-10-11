@@ -52,6 +52,52 @@ TypeScript API and runtime boundaries.
 cargo install shuck-cli
 ```
 
+### Nix
+
+The repository ships a flake, so Nix users can run or install Shuck without a
+Rust toolchain:
+
+```sh
+# Run once without installing
+nix run github:ewhauser/shuck -- check .
+
+# Install into the current profile
+nix profile install github:ewhauser/shuck
+
+# Build from a local checkout (binary lands in ./result/bin/shuck)
+nix build
+```
+
+To use `Shuck` from another flake, add it as an input and reference
+`packages.${system}.shuck` (also exported as `packages.${system}.default`):
+
+```nix
+{
+  inputs = {
+    nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+    shuck.url = "github:ewhauser/shuck";
+  };
+
+  outputs = { nixpkgs, shuck, ... }:
+    let
+      system = "x86_64-linux";
+      pkgs = nixpkgs.legacyPackages.${system};
+    in
+    {
+      # Or install it system-wide in a NixOS configuration
+      nixosConfigurations.your-host = nixpkgs.lib.nixosSystem {
+        inherit system;
+        modules = [ ./configuration.nix ];
+        specialArgs = {
+          inherit shuck;
+        };
+      };
+    };
+}
+```
+
+The same package reference works in Home Manager via `home.packages`.
+
 ### Pre-built binaries
 
 Pre-built binaries are available for macOS (aarch64) and Linux (x86_64) from the [releases page](https://github.com/ewhauser/shuck/releases).
